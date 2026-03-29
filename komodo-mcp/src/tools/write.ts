@@ -7,16 +7,18 @@ const nameOrId = z.string().describe("Resource name or ID");
 const nameParam = z.string().describe("Name for the new resource");
 const configParam = z.string().optional().describe("JSON config object for the resource");
 
+function parseConfig(config: unknown): Record<string, unknown> {
+  try {
+    return JSON.parse(config as string);
+  } catch (e) {
+    throw new Error(`Invalid JSON in config parameter: ${(e as Error).message}`);
+  }
+}
+
 function configBody(type: string) {
   return (p: Record<string, unknown>) => {
     const body: Record<string, unknown> = { [type]: p.name ?? p[type] };
-    if (p.config) {
-      try {
-        body.config = JSON.parse(p.config as string);
-      } catch {
-        body.config = {};
-      }
-    }
+    if (p.config) body.config = parseConfig(p.config);
     return body;
   };
 }
@@ -24,13 +26,7 @@ function configBody(type: string) {
 function updateBody(type: string) {
   return (p: Record<string, unknown>) => {
     const body: Record<string, unknown> = { id: p[type] ?? p.name };
-    if (p.config) {
-      try {
-        body.config = JSON.parse(p.config as string);
-      } catch {
-        body.config = {};
-      }
-    }
+    if (p.config) body.config = parseConfig(p.config);
     return body;
   };
 }

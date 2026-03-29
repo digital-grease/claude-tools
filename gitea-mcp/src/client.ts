@@ -37,8 +37,8 @@ export class GiteaClient {
     return this.request<T>("PATCH", this.buildUrl(path), body);
   }
 
-  async delete<T = unknown>(path: string): Promise<T> {
-    return this.request<T>("DELETE", this.buildUrl(path));
+  async delete<T = unknown>(path: string, body?: Record<string, unknown>): Promise<T> {
+    return this.request<T>("DELETE", this.buildUrl(path), body);
   }
 
   private buildUrl(path: string, query?: Record<string, string | number | boolean | undefined>): string {
