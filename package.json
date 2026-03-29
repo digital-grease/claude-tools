@@ -6,6 +6,7 @@
   "workspaces": [
     "gitea-mcp",
     "komodo-mcp",
-    "technitium-mcp"
+    "technitium-mcp",
+    "traefik-mcp"
   ]
 }
