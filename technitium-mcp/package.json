@@ -1,0 +1,22 @@
+{
+  "name": "technitium-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Technitium DNS Server",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "technitium-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
