@@ -164,7 +164,7 @@ export function registerRepoTools(server: McpServer, client: GiteaClient) {
           message: p.message ?? `Delete ${p.filepath}`,
           branch: p.branch,
         };
-        return client.delete(`/repos/${p.owner}/${p.repo}/contents/${p.filepath}`);
+        return client.delete(`/repos/${p.owner}/${p.repo}/contents/${p.filepath}`, body);
       },
     },
     list_releases: {
