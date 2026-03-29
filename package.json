@@ -1,0 +1,11 @@
+{
+  "name": "claude-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MCP servers for homelab services",
+  "workspaces": [
+    "gitea-mcp",
+    "komodo-mcp",
+    "technitium-mcp"
+  ]
+}

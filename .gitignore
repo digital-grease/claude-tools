@@ -1,0 +1,4 @@
+node_modules/
+dist/
+.devloop/
+CLAUDE.md
