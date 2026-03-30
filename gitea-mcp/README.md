@@ -45,7 +45,7 @@ Tools are grouped by domain with an `action` parameter.
 
 | Tool | Actions |
 |------|---------|
-| `gitea_repos` | search, get, create_user, create_org, delete, list_branches, get_branch, create_branch, list_tags, list_commits, get_contents, create_file, update_file, delete_file, list_releases, create_release, list_forks, create_fork, list_topics, list_collaborators, list_hooks |
+| `gitea_repos` | search, get, create_user, create_org, delete, list_branches, get_branch, create_branch, list_tags, list_commits, get_contents, create_file, update_file, delete_file, list_releases, create_release, list_forks, create_fork, list_topics, list_collaborators, list_hooks, create_hook, update_hook, delete_hook |
 | `gitea_issues` | list, get, create, update, list_comments, create_comment, list_labels, add_labels, list_milestones, create_milestone, list_repo_labels, create_repo_label |
 | `gitea_pulls` | list, get, create, update, merge, list_reviews, create_review, get_diff, list_files, list_commits |
 | `gitea_users` | me, get, search, list_repos, list_my_repos, list_starred, list_my_starred, list_followers, list_following |

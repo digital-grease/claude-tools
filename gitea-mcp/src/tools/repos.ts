@@ -222,5 +222,66 @@ export function registerRepoTools(server: McpServer, client: GiteaClient) {
       params: { owner, repo, page, limit },
       handler: async (client, p) => client.get(`/repos/${p.owner}/${p.repo}/hooks`, cleanParams(p)),
     },
+    create_hook: {
+      description: "Create a webhook on a repository",
+      params: {
+        owner, repo,
+        hook_type: z.string().describe("Hook type (e.g. 'gitea', 'slack', 'discord', 'dingtalk')"),
+        hook_url: z.string().describe("Target URL for the webhook"),
+        hook_content_type: z.enum(["json", "form"]).optional().describe("Content type: json or form (default: json)"),
+        hook_secret: z.string().optional().describe("Secret for the webhook"),
+        hook_events: z.array(z.string()).optional().describe("Events to trigger on (e.g. ['push', 'pull_request'])"),
+        hook_active: z.boolean().optional().describe("Whether the hook is active (default: true)"),
+        branch_filter: z.string().optional().describe("Branch filter pattern"),
+      },
+      handler: async (client, p) => {
+        const config: Record<string, unknown> = {
+          url: p.hook_url,
+          content_type: p.hook_content_type ?? "json",
+        };
+        if (p.hook_secret) config.secret = p.hook_secret;
+        const body: Record<string, unknown> = {
+          type: p.hook_type,
+          config,
+          events: p.hook_events ?? ["push"],
+          active: p.hook_active ?? true,
+        };
+        if (p.branch_filter) body.branch_filter = p.branch_filter;
+        return client.post(`/repos/${p.owner}/${p.repo}/hooks`, body);
+      },
+    },
+    update_hook: {
+      description: "Update a webhook on a repository",
+      params: {
+        owner, repo,
+        hook_id: z.number().describe("Hook ID to update"),
+        hook_url: z.string().optional().describe("New target URL"),
+        hook_content_type: z.enum(["json", "form"]).optional().describe("Content type: json or form"),
+        hook_secret: z.string().optional().describe("New secret"),
+        hook_events: z.array(z.string()).optional().describe("Events to trigger on"),
+        hook_active: z.boolean().optional().describe("Whether the hook is active"),
+        branch_filter: z.string().optional().describe("Branch filter pattern"),
+      },
+      handler: async (client, p) => {
+        const config: Record<string, unknown> = {};
+        if (p.hook_url) config.url = p.hook_url;
+        if (p.hook_content_type) config.content_type = p.hook_content_type;
+        if (p.hook_secret) config.secret = p.hook_secret;
+        const body: Record<string, unknown> = {};
+        if (Object.keys(config).length > 0) body.config = config;
+        if (p.hook_events) body.events = p.hook_events;
+        if (p.hook_active !== undefined) body.active = p.hook_active;
+        if (p.branch_filter !== undefined) body.branch_filter = p.branch_filter;
+        return client.patch(`/repos/${p.owner}/${p.repo}/hooks/${p.hook_id}`, body);
+      },
+    },
+    delete_hook: {
+      description: "Delete a webhook from a repository",
+      params: {
+        owner, repo,
+        hook_id: z.number().describe("Hook ID to delete"),
+      },
+      handler: async (client, p) => client.delete(`/repos/${p.owner}/${p.repo}/hooks/${p.hook_id}`),
+    },
   });
 }
