@@ -72,8 +72,19 @@ export function registerExecuteTools(server: McpServer, client: KomodoClient) {
     run_service: executeAction("RunStackService", "Run a one-off service command in a stack", {
       stack: nameOrId,
       service: z.string().describe("Service name"),
-      command: z.string().describe("Command to run"),
-    }, (p) => ({ stack: p.stack, service: p.service, command: p.command })),
+      command: z.string().describe("Command to run (space-separated, use quotes for args with spaces)"),
+    }, (p) => {
+      // Komodo API expects command as string[] — split the command string into tokens,
+      // respecting single and double quoted substrings
+      const cmd = p.command as string;
+      const tokens: string[] = [];
+      const re = /(?:"([^"]*?)"|'([^']*?)'|(\S+))/g;
+      let match: RegExpExecArray | null;
+      while ((match = re.exec(cmd)) !== null) {
+        tokens.push(match[1] ?? match[2] ?? match[3]);
+      }
+      return { stack: p.stack, service: p.service, command: tokens };
+    }),
   });
 
   // -- Container Control --
