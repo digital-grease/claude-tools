@@ -4,6 +4,8 @@
   "private": true,
   "description": "MCP servers for homelab services",
   "workspaces": [
+    "bookstack-mcp",
+    "forgejo-mcp",
     "gitea-mcp",
     "komodo-mcp",
     "technitium-mcp",

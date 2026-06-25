@@ -45,10 +45,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ deployment: p.deployment })),
     copy: writeAction("CopyDeployment", "Copy a deployment", {
       deployment: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.deployment, new_name: p.new_name })),
+    }, (p) => ({ id: p.deployment, name: p.new_name })),
     rename: writeAction("RenameDeployment", "Rename a deployment", {
       deployment: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ deployment: p.deployment, new_name: p.new_name })),
+    }, (p) => ({ id: p.deployment, name: p.new_name })),
     create_from_container: writeAction("CreateDeploymentFromContainer", "Create deployment from existing container", {
       server: z.string().describe("Server name or ID"),
       container: z.string().describe("Container name"),
@@ -68,10 +68,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ stack: p.stack })),
     copy: writeAction("CopyStack", "Copy a stack", {
       stack: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.stack, new_name: p.new_name })),
+    }, (p) => ({ id: p.stack, name: p.new_name })),
     rename: writeAction("RenameStack", "Rename a stack", {
       stack: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ stack: p.stack, new_name: p.new_name })),
+    }, (p) => ({ id: p.stack, name: p.new_name })),
     write_file: writeAction("WriteStackFileContents", "Write/update stack compose file contents", {
       stack: nameOrId, contents: z.string().describe("File contents"),
     }, (p) => ({ stack: p.stack, contents: p.contents })),
@@ -93,10 +93,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ server: p.server })),
     copy: writeAction("CopyServer", "Copy a server", {
       server: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.server, new_name: p.new_name })),
+    }, (p) => ({ id: p.server, name: p.new_name })),
     rename: writeAction("RenameServer", "Rename a server", {
       server: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ server: p.server, new_name: p.new_name })),
+    }, (p) => ({ id: p.server, name: p.new_name })),
   });
 
   // -- Build CRUD --
@@ -112,10 +112,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ build: p.build })),
     copy: writeAction("CopyBuild", "Copy a build", {
       build: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.build, new_name: p.new_name })),
+    }, (p) => ({ id: p.build, name: p.new_name })),
     rename: writeAction("RenameBuild", "Rename a build", {
       build: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ build: p.build, new_name: p.new_name })),
+    }, (p) => ({ id: p.build, name: p.new_name })),
     write_file: writeAction("WriteBuildFileContents", "Write/update build Dockerfile contents", {
       build: nameOrId, contents: z.string().describe("File contents"),
     }, (p) => ({ build: p.build, contents: p.contents })),
@@ -137,10 +137,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ repo: p.repo })),
     copy: writeAction("CopyRepo", "Copy a repo", {
       repo: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.repo, new_name: p.new_name })),
+    }, (p) => ({ id: p.repo, name: p.new_name })),
     rename: writeAction("RenameRepo", "Rename a repo", {
       repo: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ repo: p.repo, new_name: p.new_name })),
+    }, (p) => ({ id: p.repo, name: p.new_name })),
     refresh_cache: writeAction("RefreshRepoCache", "Refresh the repo cache", {
       repo: nameOrId,
     }, (p) => ({ repo: p.repo })),
@@ -159,10 +159,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ procedure: p.procedure })),
     copy: writeAction("CopyProcedure", "Copy a procedure", {
       procedure: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.procedure, new_name: p.new_name })),
+    }, (p) => ({ id: p.procedure, name: p.new_name })),
     rename: writeAction("RenameProcedure", "Rename a procedure", {
       procedure: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ procedure: p.procedure, new_name: p.new_name })),
+    }, (p) => ({ id: p.procedure, name: p.new_name })),
   });
 
   // -- Action CRUD --
@@ -178,10 +178,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ action: p.action_id })),
     copy: writeAction("CopyAction", "Copy an action", {
       action_id: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.action_id, new_name: p.new_name })),
+    }, (p) => ({ id: p.action_id, name: p.new_name })),
     rename: writeAction("RenameAction", "Rename an action", {
       action_id: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ action: p.action_id, new_name: p.new_name })),
+    }, (p) => ({ id: p.action_id, name: p.new_name })),
   });
 
   // -- Alerter CRUD --
@@ -197,10 +197,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ alerter: p.alerter })),
     copy: writeAction("CopyAlerter", "Copy an alerter", {
       alerter: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.alerter, new_name: p.new_name })),
+    }, (p) => ({ id: p.alerter, name: p.new_name })),
     rename: writeAction("RenameAlerter", "Rename an alerter", {
       alerter: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ alerter: p.alerter, new_name: p.new_name })),
+    }, (p) => ({ id: p.alerter, name: p.new_name })),
   });
 
   // -- Sync CRUD --
@@ -216,10 +216,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ sync: p.sync })),
     copy: writeAction("CopyResourceSync", "Copy a sync", {
       sync: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.sync, new_name: p.new_name })),
+    }, (p) => ({ id: p.sync, name: p.new_name })),
     rename: writeAction("RenameResourceSync", "Rename a sync", {
       sync: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ sync: p.sync, new_name: p.new_name })),
+    }, (p) => ({ id: p.sync, name: p.new_name })),
     write_file: writeAction("WriteSyncFileContents", "Write/update sync file contents", {
       sync: nameOrId, contents: z.string().describe("File contents"),
     }, (p) => ({ sync: p.sync, contents: p.contents })),
@@ -244,10 +244,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ swarm: p.swarm })),
     copy: writeAction("CopySwarm", "Copy a swarm", {
       swarm: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.swarm, new_name: p.new_name })),
+    }, (p) => ({ id: p.swarm, name: p.new_name })),
     rename: writeAction("RenameSwarm", "Rename a swarm", {
       swarm: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ swarm: p.swarm, new_name: p.new_name })),
+    }, (p) => ({ id: p.swarm, name: p.new_name })),
   });
 
   // -- Builder CRUD --
@@ -263,10 +263,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ builder: p.builder })),
     copy: writeAction("CopyBuilder", "Copy a builder", {
       builder: nameOrId, new_name: z.string().describe("Name for the copy"),
-    }, (p) => ({ name: p.builder, new_name: p.new_name })),
+    }, (p) => ({ id: p.builder, name: p.new_name })),
     rename: writeAction("RenameBuilder", "Rename a builder", {
       builder: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ builder: p.builder, new_name: p.new_name })),
+    }, (p) => ({ id: p.builder, name: p.new_name })),
   });
 
   // -- Docker Registry CRUD --
@@ -332,7 +332,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ user_group: p.user_group })),
     rename: writeAction("RenameUserGroup", "Rename a user group", {
       user_group: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ user_group: p.user_group, new_name: p.new_name })),
+    }, (p) => ({ id: p.user_group, name: p.new_name })),
     add_user: writeAction("AddUserToUserGroup", "Add a user to a group", {
       user_group: nameOrId, user: z.string().describe("User ID"),
     }, (p) => ({ user_group: p.user_group, user: p.user })),
@@ -384,7 +384,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ tag: p.tag })),
     rename: writeAction("RenameTag", "Rename a tag", {
       tag: nameOrId, new_name: z.string().describe("New name"),
-    }, (p) => ({ tag: p.tag, new_name: p.new_name })),
+    }, (p) => ({ id: p.tag, name: p.new_name })),
   });
 
   // -- Alert Management --
