@@ -55,7 +55,7 @@ export function registerActionTool(
     try {
       const result = await route.handler(client, params);
       return {
-        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        content: [{ type: "text", text: JSON.stringify(redact(result), null, 2) }],
       };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -113,6 +113,53 @@ export function executeAction(
       return client.execute(requestName, body);
     },
   };
+}
+
+/**
+ * Strip secrets from every Komodo API response before it reaches the caller.
+ *
+ * Komodo returns full resource objects from reads AND from writes (e.g. DeleteStack
+ * returns the deleted stack), including the stack/deployment `environment`, the
+ * rendered compose (`deployed_config`, with secrets already interpolated), webhook
+ * secrets and secret variables. None of that should land in a model's context.
+ *
+ * - `environment`: keep variable NAMES, drop values ("KEY=<redacted>"), so you can
+ *   still see what is set.
+ * - `deployed_config`: replaced entirely (interpolated values are unrecognisable).
+ * - secret-looking keys (password, secret, token, passkey, api key, private key, ...):
+ *   value replaced.
+ * - Komodo variables with `is_secret: true`: `value` replaced.
+ */
+const REDACTED = "<redacted by komodo-mcp>";
+const SECRET_KEY =
+  /(^|_)(password|passwd|pass|secret|secrets|token|passkey|passkeys|api_?key|private_?key|credentials?)($|_)/i;
+
+export function redact(value: unknown, key = ""): unknown {
+  if (Array.isArray(value)) return value.map((v) => redact(v, key));
+  if (value !== null && typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    const secretVariable = obj.is_secret === true;
+    for (const [k, v] of Object.entries(obj)) {
+      if (secretVariable && k === "value") out[k] = REDACTED;
+      else out[k] = redact(v, k);
+    }
+    return out;
+  }
+  if (typeof value === "string" && value !== "") {
+    if (key === "deployed_config") return REDACTED;
+    if (key === "environment") {
+      return value
+        .split("\n")
+        .map((line) => {
+          const m = line.match(/^(\s*(?:export\s+)?[A-Za-z_][A-Za-z0-9_]*)\s*=/);
+          return m ? `${m[1]}=<redacted>` : line;
+        })
+        .join("\n");
+    }
+    if (SECRET_KEY.test(key)) return REDACTED;
+  }
+  return value;
 }
 
 function stripAction(params: Record<string, unknown>): Record<string, unknown> {
