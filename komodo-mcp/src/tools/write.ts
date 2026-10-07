@@ -42,7 +42,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("deployment")),
     delete: writeAction("DeleteDeployment", "Delete a deployment (DESTRUCTIVE)", {
       deployment: nameOrId,
-    }, (p) => ({ deployment: p.deployment })),
+    }, (p) => ({ id: p.deployment })),
     copy: writeAction("CopyDeployment", "Copy a deployment", {
       deployment: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.deployment, name: p.new_name })),
@@ -65,7 +65,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("stack")),
     delete: writeAction("DeleteStack", "Delete a stack (DESTRUCTIVE)", {
       stack: nameOrId,
-    }, (p) => ({ stack: p.stack })),
+    }, (p) => ({ id: p.stack })),
     copy: writeAction("CopyStack", "Copy a stack", {
       stack: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.stack, name: p.new_name })),
@@ -90,7 +90,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("server")),
     delete: writeAction("DeleteServer", "Delete a server (DESTRUCTIVE)", {
       server: nameOrId,
-    }, (p) => ({ server: p.server })),
+    }, (p) => ({ id: p.server })),
     copy: writeAction("CopyServer", "Copy a server", {
       server: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.server, name: p.new_name })),
@@ -109,7 +109,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("build")),
     delete: writeAction("DeleteBuild", "Delete a build (DESTRUCTIVE)", {
       build: nameOrId,
-    }, (p) => ({ build: p.build })),
+    }, (p) => ({ id: p.build })),
     copy: writeAction("CopyBuild", "Copy a build", {
       build: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.build, name: p.new_name })),
@@ -134,7 +134,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("repo")),
     delete: writeAction("DeleteRepo", "Delete a repo (DESTRUCTIVE)", {
       repo: nameOrId,
-    }, (p) => ({ repo: p.repo })),
+    }, (p) => ({ id: p.repo })),
     copy: writeAction("CopyRepo", "Copy a repo", {
       repo: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.repo, name: p.new_name })),
@@ -156,7 +156,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("procedure")),
     delete: writeAction("DeleteProcedure", "Delete a procedure (DESTRUCTIVE)", {
       procedure: nameOrId,
-    }, (p) => ({ procedure: p.procedure })),
+    }, (p) => ({ id: p.procedure })),
     copy: writeAction("CopyProcedure", "Copy a procedure", {
       procedure: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.procedure, name: p.new_name })),
@@ -175,7 +175,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("action_id")),
     delete: writeAction("DeleteAction", "Delete an action (DESTRUCTIVE)", {
       action_id: nameOrId,
-    }, (p) => ({ action: p.action_id })),
+    }, (p) => ({ id: p.action_id })),
     copy: writeAction("CopyAction", "Copy an action", {
       action_id: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.action_id, name: p.new_name })),
@@ -194,7 +194,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("alerter")),
     delete: writeAction("DeleteAlerter", "Delete an alerter (DESTRUCTIVE)", {
       alerter: nameOrId,
-    }, (p) => ({ alerter: p.alerter })),
+    }, (p) => ({ id: p.alerter })),
     copy: writeAction("CopyAlerter", "Copy an alerter", {
       alerter: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.alerter, name: p.new_name })),
@@ -213,7 +213,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("sync")),
     delete: writeAction("DeleteResourceSync", "Delete a sync (DESTRUCTIVE)", {
       sync: nameOrId,
-    }, (p) => ({ sync: p.sync })),
+    }, (p) => ({ id: p.sync })),
     copy: writeAction("CopyResourceSync", "Copy a sync", {
       sync: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.sync, name: p.new_name })),
@@ -241,7 +241,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("swarm")),
     delete: writeAction("DeleteSwarm", "Delete a swarm (DESTRUCTIVE)", {
       swarm: nameOrId,
-    }, (p) => ({ swarm: p.swarm })),
+    }, (p) => ({ id: p.swarm })),
     copy: writeAction("CopySwarm", "Copy a swarm", {
       swarm: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.swarm, name: p.new_name })),
@@ -260,7 +260,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("builder")),
     delete: writeAction("DeleteBuilder", "Delete a builder (DESTRUCTIVE)", {
       builder: nameOrId,
-    }, (p) => ({ builder: p.builder })),
+    }, (p) => ({ id: p.builder })),
     copy: writeAction("CopyBuilder", "Copy a builder", {
       builder: nameOrId, new_name: z.string().describe("Name for the copy"),
     }, (p) => ({ id: p.builder, name: p.new_name })),
@@ -279,7 +279,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("registry")),
     delete: writeAction("DeleteDockerRegistryAccount", "Delete a registry account (DESTRUCTIVE)", {
       registry: nameOrId,
-    }, (p) => ({ registry: p.registry })),
+    }, (p) => ({ id: p.registry })),
   });
 
   // -- Git Provider CRUD --
@@ -292,7 +292,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, updateBody("provider")),
     delete: writeAction("DeleteGitProviderAccount", "Delete a provider account (DESTRUCTIVE)", {
       provider: nameOrId,
-    }, (p) => ({ provider: p.provider })),
+    }, (p) => ({ id: p.provider })),
   });
 
   // -- User Management --
@@ -319,7 +319,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     delete_api_key: writeAction("DeleteApiKeyForServiceUser", "Delete API key for a service user", {
       user: z.string().describe("Service user ID"),
       key: z.string().describe("API key to delete"),
-    }, (p) => ({ user: p.user, key: p.key })),
+    }, (p) => ({ key: p.key })),
   });
 
   // -- User Group Management --
@@ -329,7 +329,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ name: p.name })),
     delete: writeAction("DeleteUserGroup", "Delete a user group (DESTRUCTIVE)", {
       user_group: nameOrId,
-    }, (p) => ({ user_group: p.user_group })),
+    }, (p) => ({ id: p.user_group })),
     rename: writeAction("RenameUserGroup", "Rename a user group", {
       user_group: nameOrId, new_name: z.string().describe("New name"),
     }, (p) => ({ id: p.user_group, name: p.new_name })),
@@ -365,7 +365,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ name: p.name, value: p.value, description: p.description ?? "", is_secret: p.is_secret ?? false })),
     delete: writeAction("DeleteVariable", "Delete a variable (DESTRUCTIVE)", {
       variable: nameOrId,
-    }, (p) => ({ variable: p.variable })),
+    }, (p) => ({ name: p.variable })),
     update_value: writeAction("UpdateVariableValue", "Update a variable's value", {
       variable: nameOrId, value: z.string().describe("New value"),
     }, (p) => ({ variable: p.variable, value: p.value })),
@@ -381,7 +381,7 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ name: p.name })),
     delete: writeAction("DeleteTag", "Delete a tag (DESTRUCTIVE)", {
       tag: nameOrId,
-    }, (p) => ({ tag: p.tag })),
+    }, (p) => ({ id: p.tag })),
     rename: writeAction("RenameTag", "Rename a tag", {
       tag: nameOrId, new_name: z.string().describe("New name"),
     }, (p) => ({ id: p.tag, name: p.new_name })),

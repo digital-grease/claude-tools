@@ -185,7 +185,7 @@ export function registerExecuteTools(server: McpServer, client: KomodoClient) {
     delete: executeAction("DeleteImage", "Delete a Docker image (DESTRUCTIVE)", {
       server: z.string().describe("Server name or ID"),
       image: z.string().describe("Image name or ID"),
-    }, (p) => ({ server: p.server, image: p.image })),
+    }, (p) => ({ server: p.server, name: p.image })),
     prune: executeAction("PruneImages", "Prune unused images (DESTRUCTIVE)", {
       server: z.string().describe("Server name or ID"),
     }, (p) => ({ server: p.server })),
@@ -195,7 +195,7 @@ export function registerExecuteTools(server: McpServer, client: KomodoClient) {
     delete: executeAction("DeleteNetwork", "Delete a Docker network (DESTRUCTIVE)", {
       server: z.string().describe("Server name or ID"),
       network: z.string().describe("Network name or ID"),
-    }, (p) => ({ server: p.server, network: p.network })),
+    }, (p) => ({ server: p.server, name: p.network })),
     prune: executeAction("PruneNetworks", "Prune unused networks (DESTRUCTIVE)", {
       server: z.string().describe("Server name or ID"),
     }, (p) => ({ server: p.server })),
@@ -205,7 +205,7 @@ export function registerExecuteTools(server: McpServer, client: KomodoClient) {
     delete: executeAction("DeleteVolume", "Delete a Docker volume (DESTRUCTIVE)", {
       server: z.string().describe("Server name or ID"),
       volume: z.string().describe("Volume name"),
-    }, (p) => ({ server: p.server, volume: p.volume })),
+    }, (p) => ({ server: p.server, name: p.volume })),
     prune: executeAction("PruneVolumes", "Prune unused volumes (DESTRUCTIVE)", {
       server: z.string().describe("Server name or ID"),
     }, (p) => ({ server: p.server })),
