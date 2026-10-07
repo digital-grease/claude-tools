@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { KomodoClient } from "../client.js";
-import { registerActionTool, readAction } from "../helpers.js";
+import { registerActionTool, readAction, splitList } from "../helpers.js";
 
 const nameOrId = z.string().describe("Resource name or ID");
 const query = z.string().optional().describe("Search/filter query string");
@@ -13,7 +13,7 @@ export function registerCoreReadTools(server: McpServer, client: KomodoClient) {
   registerActionTool(server, client, "komodo_deployments", "Query Komodo deployments", {
     list: readAction("ListDeployments", "List all deployments", {
       query: z.string().optional().describe("Filter by name pattern"),
-    }, (p) => ({ query: p.query ? { names: [], specific: {} } : {} })),
+    }, (p) => ({ query: p.query ? { names: [p.query] } : {} })),
     get: readAction("GetDeployment", "Get deployment details", {
       deployment: nameOrId,
     }, (p) => ({ deployment: p.deployment })),
@@ -43,11 +43,13 @@ export function registerCoreReadTools(server: McpServer, client: KomodoClient) {
     get_log: readAction("GetStackLog", "Get stack service logs", {
       stack: nameOrId,
       tail: tail,
-    }, (p) => ({ stack: p.stack, tail: p.tail ?? 100 })),
+      services: z.string().optional().describe("Comma-separated service names (default: all)"),
+    }, (p) => ({ stack: p.stack, services: splitList(p.services), tail: p.tail ?? 100 })),
     search_log: readAction("SearchStackLog", "Search stack service logs", {
       stack: nameOrId,
       terms: searchTerm,
-    }, (p) => ({ stack: p.stack, terms: [p.terms] })),
+      services: z.string().optional().describe("Comma-separated service names (default: all)"),
+    }, (p) => ({ stack: p.stack, services: splitList(p.services), terms: [p.terms] })),
     list_services: readAction("ListStackServices", "List services in a stack", {
       stack: nameOrId,
     }, (p) => ({ stack: p.stack })),

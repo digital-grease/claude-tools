@@ -30,13 +30,17 @@ export function registerAdminReadTools(server: McpServer, client: KomodoClient) 
 
   // -- Permissions --
   registerActionTool(server, client, "komodo_permissions", "Query Komodo permissions", {
-    get: readAction("GetPermission", "Get permission for a user on a resource target", {
-      user_target: z.string().describe("User or group ID"),
+    get: readAction("GetPermission", "Get the calling user's permission on a resource", {
       resource_target_type: z.string().describe("Resource type (e.g., Deployment, Stack)"),
-      resource_target_id: z.string().describe("Resource ID"),
+      resource_target_id: z.string().describe("Resource name or ID"),
     }, (p) => ({
-      user_target: { type: "User", id: p.user_target },
-      resource_target: { type: p.resource_target_type, id: p.resource_target_id },
+      target: { type: p.resource_target_type, id: p.resource_target_id },
+    })),
+    list_user_target: readAction("ListUserTargetPermissions", "List all permissions held by a user or group", {
+      user_target_type: z.enum(["User", "UserGroup"]).describe("User or UserGroup"),
+      user_target_id: z.string().describe("User or group ID"),
+    }, (p) => ({
+      user_target: { type: p.user_target_type, id: p.user_target_id },
     })),
     list: readAction("ListPermissions", "List all permissions"),
   });
@@ -45,8 +49,8 @@ export function registerAdminReadTools(server: McpServer, client: KomodoClient) 
   registerActionTool(server, client, "komodo_variables", "Query Komodo variables", {
     list: readAction("ListVariables", "List all variables"),
     get: readAction("GetVariable", "Get variable details", {
-      variable: nameOrId,
-    }, (p) => ({ variable: p.variable })),
+      variable: z.string().describe("Variable name"),
+    }, (p) => ({ name: p.variable })),
   });
 
   // -- Tags --
@@ -61,10 +65,10 @@ export function registerAdminReadTools(server: McpServer, client: KomodoClient) 
   registerActionTool(server, client, "komodo_alerts", "Query Komodo alerts", {
     list: readAction("ListAlerts", "List alerts", {
       page: z.number().optional().describe("Page number (0-indexed)"),
-    }, (p) => ({ query: { page: p.page ?? 0 } })),
+    }, (p) => ({ page: p.page ?? 0 })),
     get: readAction("GetAlert", "Get alert details", {
       alert: z.string().describe("Alert ID"),
-    }, (p) => ({ alert: p.alert })),
+    }, (p) => ({ id: p.alert })),
   });
 
   // -- Builders --
@@ -81,8 +85,8 @@ export function registerAdminReadTools(server: McpServer, client: KomodoClient) 
     list: readAction("ListDockerRegistryAccounts", "List all Docker registries"),
     list_from_config: readAction("ListDockerRegistriesFromConfig", "List registries from core config"),
     get: readAction("GetDockerRegistryAccount", "Get registry account details", {
-      registry: nameOrId,
-    }, (p) => ({ registry: p.registry })),
+      registry: z.string().describe("Registry account ID (from list)"),
+    }, (p) => ({ id: p.registry })),
   });
 
   // -- Git Providers --
@@ -90,8 +94,8 @@ export function registerAdminReadTools(server: McpServer, client: KomodoClient) 
     list: readAction("ListGitProviderAccounts", "List all Git providers"),
     list_from_config: readAction("ListGitProvidersFromConfig", "List providers from core config"),
     get: readAction("GetGitProviderAccount", "Get provider account details", {
-      provider: nameOrId,
-    }, (p) => ({ provider: p.provider })),
+      provider: z.string().describe("Provider account ID (from list)"),
+    }, (p) => ({ id: p.provider })),
   });
 
   // -- System --
@@ -103,7 +107,7 @@ export function registerAdminReadTools(server: McpServer, client: KomodoClient) 
     list_terminals: readAction("ListTerminals", "List active terminals"),
     list_updates: readAction("ListUpdates", "List recent updates/operations", {
       page: z.number().optional().describe("Page number (0-indexed)"),
-    }, (p) => ({ query: { page: p.page ?? 0 } })),
+    }, (p) => ({ page: p.page ?? 0 })),
     get_update: readAction("GetUpdate", "Get details of a specific update", {
       update_id: z.string().describe("Update ID"),
     }, (p) => ({ id: p.update_id })),

@@ -162,6 +162,12 @@ export function redact(value: unknown, key = ""): unknown {
   return value;
 }
 
+/** "a, b,c" -> ["a", "b", "c"]; missing or empty -> [] */
+export function splitList(value: unknown): string[] {
+  if (typeof value !== "string") return [];
+  return value.split(",").map((s) => s.trim()).filter(Boolean);
+}
+
 function stripAction(params: Record<string, unknown>): Record<string, unknown> {
   const { action, ...rest } = params;
   // Remove undefined values

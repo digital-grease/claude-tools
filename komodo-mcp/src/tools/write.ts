@@ -6,6 +6,7 @@ import { registerActionTool, writeAction } from "../helpers.js";
 const nameOrId = z.string().describe("Resource name or ID");
 const nameParam = z.string().describe("Name for the new resource");
 const configParam = z.string().optional().describe("JSON config object for the resource");
+const accountParam = z.string().describe('JSON account object, e.g. {"domain":"ghcr.io","username":"me","token":"..."}');
 
 function parseConfig(config: unknown): Record<string, unknown> {
   try {
@@ -51,8 +52,8 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ id: p.deployment, name: p.new_name })),
     create_from_container: writeAction("CreateDeploymentFromContainer", "Create deployment from existing container", {
       server: z.string().describe("Server name or ID"),
-      container: z.string().describe("Container name"),
-    }, (p) => ({ server: p.server, container: p.container })),
+      container: z.string().describe("Container name (also becomes the deployment name)"),
+    }, (p) => ({ server: p.server, name: p.container })),
   });
 
   // -- Stack CRUD --
@@ -73,8 +74,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
       stack: nameOrId, new_name: z.string().describe("New name"),
     }, (p) => ({ id: p.stack, name: p.new_name })),
     write_file: writeAction("WriteStackFileContents", "Write/update stack compose file contents", {
-      stack: nameOrId, contents: z.string().describe("File contents"),
-    }, (p) => ({ stack: p.stack, contents: p.contents })),
+      stack: nameOrId,
+      file_path: z.string().optional().describe("File path relative to the stack run directory (default compose.yaml)"),
+      contents: z.string().describe("File contents"),
+    }, (p) => ({ stack: p.stack, file_path: p.file_path ?? "compose.yaml", contents: p.contents })),
     check_update: writeAction("CheckStackForUpdate", "Check if stack has pending updates", {
       stack: nameOrId,
     }, (p) => ({ stack: p.stack })),
@@ -221,8 +224,11 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
       sync: nameOrId, new_name: z.string().describe("New name"),
     }, (p) => ({ id: p.sync, name: p.new_name })),
     write_file: writeAction("WriteSyncFileContents", "Write/update sync file contents", {
-      sync: nameOrId, contents: z.string().describe("File contents"),
-    }, (p) => ({ sync: p.sync, contents: p.contents })),
+      sync: nameOrId,
+      resource_path: z.string().describe("Resource path (folder) within the sync"),
+      file_path: z.string().describe("File path relative to the resource path"),
+      contents: z.string().describe("File contents"),
+    }, (p) => ({ sync: p.sync, resource_path: p.resource_path, file_path: p.file_path, contents: p.contents })),
     commit: writeAction("CommitSync", "Commit pending sync changes", {
       sync: nameOrId,
     }, (p) => ({ sync: p.sync })),
@@ -272,11 +278,11 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
   // -- Docker Registry CRUD --
   registerActionTool(server, client, "komodo_docker_registry_manage", "Create, update, delete Docker registries", {
     create: writeAction("CreateDockerRegistryAccount", "Create a Docker registry account", {
-      name: nameParam, config: configParam,
-    }, configBody("name")),
+      config: accountParam,
+    }, (p) => ({ account: parseConfig(p.config) })),
     update: writeAction("UpdateDockerRegistryAccount", "Update registry account", {
-      registry: nameOrId, config: configParam,
-    }, updateBody("registry")),
+      registry: z.string().describe("Registry account ID"), config: accountParam,
+    }, (p) => ({ id: p.registry, account: parseConfig(p.config) })),
     delete: writeAction("DeleteDockerRegistryAccount", "Delete a registry account (DESTRUCTIVE)", {
       registry: nameOrId,
     }, (p) => ({ id: p.registry })),
@@ -285,11 +291,11 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
   // -- Git Provider CRUD --
   registerActionTool(server, client, "komodo_git_provider_manage", "Create, update, delete Git providers", {
     create: writeAction("CreateGitProviderAccount", "Create a Git provider account", {
-      name: nameParam, config: configParam,
-    }, configBody("name")),
+      config: accountParam,
+    }, (p) => ({ account: parseConfig(p.config) })),
     update: writeAction("UpdateGitProviderAccount", "Update provider account", {
-      provider: nameOrId, config: configParam,
-    }, updateBody("provider")),
+      provider: z.string().describe("Provider account ID"), config: accountParam,
+    }, (p) => ({ id: p.provider, account: parseConfig(p.config) })),
     delete: writeAction("DeleteGitProviderAccount", "Delete a provider account (DESTRUCTIVE)", {
       provider: nameOrId,
     }, (p) => ({ id: p.provider })),
@@ -311,11 +317,11 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     update_admin: writeAction("UpdateUserAdmin", "Set/unset user admin status", {
       user: z.string().describe("User ID"),
       admin: z.boolean().describe("Whether user should be admin"),
-    }, (p) => ({ user: p.user, admin: p.admin })),
+    }, (p) => ({ user_id: p.user, admin: p.admin })),
     create_api_key: writeAction("CreateApiKeyForServiceUser", "Create API key for a service user", {
       user: z.string().describe("Service user ID"),
       key_name: z.string().describe("API key name"),
-    }, (p) => ({ user: p.user, name: p.key_name })),
+    }, (p) => ({ user_id: p.user, name: p.key_name })),
     delete_api_key: writeAction("DeleteApiKeyForServiceUser", "Delete API key for a service user", {
       user: z.string().describe("Service user ID"),
       key: z.string().describe("API key to delete"),
@@ -368,10 +374,10 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ name: p.variable })),
     update_value: writeAction("UpdateVariableValue", "Update a variable's value", {
       variable: nameOrId, value: z.string().describe("New value"),
-    }, (p) => ({ variable: p.variable, value: p.value })),
+    }, (p) => ({ name: p.variable, value: p.value })),
     update_description: writeAction("UpdateVariableDescription", "Update a variable's description", {
       variable: nameOrId, description: z.string().describe("New description"),
-    }, (p) => ({ variable: p.variable, description: p.description })),
+    }, (p) => ({ name: p.variable, description: p.description })),
   });
 
   // -- Tag Management --
@@ -391,15 +397,14 @@ export function registerWriteTools(server: McpServer, client: KomodoClient) {
   registerActionTool(server, client, "komodo_alert_manage", "Manage Komodo alerts", {
     close: writeAction("CloseAlert", "Close/acknowledge an alert", {
       alert: z.string().describe("Alert ID"),
-    }, (p) => ({ alert: p.alert })),
+    }, (p) => ({ id: p.alert })),
   });
 
   // -- Network Management --
   registerActionTool(server, client, "komodo_network_manage", "Create Docker networks", {
     create: writeAction("CreateNetwork", "Create a Docker network on a server", {
       server: z.string().describe("Server name or ID"),
-      network_name: z.string().describe("Network name"),
-      driver: z.string().optional().describe("Network driver (default: bridge)"),
-    }, (p) => ({ server: p.server, name: p.network_name, driver: p.driver ?? "bridge" })),
+      network_name: z.string().describe("Network name (bridge driver; Komodo's API has no driver option)"),
+    }, (p) => ({ server: p.server, name: p.network_name })),
   });
 }

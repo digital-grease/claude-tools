@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { KomodoClient } from "../client.js";
-import { registerActionTool, readAction } from "../helpers.js";
+import { registerActionTool, readAction, splitList } from "../helpers.js";
 
 const nameOrId = z.string().describe("Resource name or ID");
 
@@ -40,9 +40,16 @@ export function registerOpsReadTools(server: McpServer, client: KomodoClient) {
       sync: nameOrId,
     }, (p) => ({ sync: p.sync })),
     get_summary: readAction("GetResourceSyncsSummary", "Get summary counts"),
-    export_toml: readAction("ExportResourcesToToml", "Export a sync's resources as TOML", {
-      sync: nameOrId,
-    }, (p) => ({ sync: p.sync })),
+    export_toml: readAction("ExportResourcesToToml", "Export specific resources as sync TOML", {
+      targets: z.string().describe("Comma-separated Type:name pairs, e.g. Stack:ntfy, Server:crypt (types: Server, Stack, Deployment, Build, Repo, Procedure, Action, Builder, Alerter, ResourceSync, Swarm)"),
+      include_variables: z.boolean().optional().describe("Also export variables"),
+    }, (p) => ({
+      targets: splitList(p.targets).map((t) => {
+        const i = t.indexOf(":");
+        return { type: t.slice(0, i), id: t.slice(i + 1) };
+      }),
+      include_variables: p.include_variables ?? false,
+    })),
     export_all_toml: readAction("ExportAllResourcesToToml", "Export all resources as TOML"),
   });
 

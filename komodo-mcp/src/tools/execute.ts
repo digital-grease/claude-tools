@@ -4,6 +4,9 @@ import { KomodoClient } from "../client.js";
 import { registerActionTool, executeAction } from "../helpers.js";
 
 const nameOrId = z.string().describe("Resource name or ID");
+const batchPattern = z.string().describe(
+  "Names/IDs, wildcards (foo-*) or regex, comma- or newline-separated",
+);
 
 export function registerExecuteTools(server: McpServer, client: KomodoClient) {
   // -- Deployment Control --
@@ -18,9 +21,9 @@ export function registerExecuteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ deployment: p.deployment })),
     stop: executeAction("StopDeployment", "Stop a running deployment", {
       deployment: nameOrId,
-      stop_signal: z.string().optional().describe("Stop signal"),
-      stop_time: z.number().optional().describe("Stop timeout in seconds"),
-    }, (p) => ({ deployment: p.deployment, stop_signal: p.stop_signal, stop_time: p.stop_time })),
+      signal: z.string().optional().describe("Termination signal: SIGHUP, SIGINT, SIGQUIT or SIGTERM"),
+      time: z.number().optional().describe("Seconds to wait before force-killing"),
+    }, (p) => ({ deployment: p.deployment, signal: p.signal, time: p.time })),
     restart: executeAction("RestartDeployment", "Restart a deployment", {
       deployment: nameOrId,
     }, (p) => ({ deployment: p.deployment })),
@@ -35,9 +38,9 @@ export function registerExecuteTools(server: McpServer, client: KomodoClient) {
     }, (p) => ({ deployment: p.deployment })),
     destroy: executeAction("DestroyDeployment", "Destroy a deployment's container (DESTRUCTIVE)", {
       deployment: nameOrId,
-      stop_signal: z.string().optional().describe("Stop signal"),
-      stop_time: z.number().optional().describe("Stop timeout in seconds"),
-    }, (p) => ({ deployment: p.deployment, stop_signal: p.stop_signal, stop_time: p.stop_time })),
+      signal: z.string().optional().describe("Termination signal: SIGHUP, SIGINT, SIGQUIT or SIGTERM"),
+      time: z.number().optional().describe("Seconds to wait before force-killing"),
+    }, (p) => ({ deployment: p.deployment, signal: p.signal, time: p.time })),
   });
 
   // -- Stack Control --
@@ -174,10 +177,17 @@ export function registerExecuteTools(server: McpServer, client: KomodoClient) {
     test: executeAction("TestAlerter", "Send a test alert", {
       alerter: nameOrId,
     }, (p) => ({ alerter: p.alerter })),
-    send_alert: executeAction("SendAlert", "Send an alert via an alerter", {
-      alerter: nameOrId,
+    send_alert: executeAction("SendAlert", "Send a custom alert (all alerters, or only the listed ones)", {
       message: z.string().describe("Alert message"),
-    }, (p) => ({ alerter: p.alerter, message: p.message })),
+      details: z.string().optional().describe("Alert details"),
+      level: z.enum(["OK", "WARNING", "CRITICAL"]).optional().describe("Severity (default OK)"),
+      alerters: z.string().optional().describe("Comma-separated alerter names or IDs (default: all)"),
+    }, (p) => ({
+      message: p.message,
+      details: p.details ?? "",
+      level: p.level ?? "OK",
+      alerters: p.alerters ? (p.alerters as string).split(",").map(s => s.trim()) : [],
+    })),
   });
 
   // -- Image / Network / Volume Cleanup --
@@ -235,27 +245,27 @@ export function registerExecuteTools(server: McpServer, client: KomodoClient) {
 
   // -- Batch Operations --
   registerActionTool(server, client, "komodo_batch", "Batch operations across multiple resources", {
-    batch_deploy: executeAction("BatchDeploy", "Deploy multiple deployments", {
-      deployments: z.string().describe("Comma-separated deployment names"),
-    }, (p) => ({ deployments: (p.deployments as string).split(",").map(s => s.trim()) })),
-    batch_deploy_stack: executeAction("BatchDeployStack", "Deploy multiple stacks", {
-      stacks: z.string().describe("Comma-separated stack names"),
-    }, (p) => ({ stacks: (p.stacks as string).split(",").map(s => s.trim()) })),
-    batch_run_build: executeAction("BatchRunBuild", "Run multiple builds", {
-      builds: z.string().describe("Comma-separated build names"),
-    }, (p) => ({ builds: (p.builds as string).split(",").map(s => s.trim()) })),
-    batch_run_action: executeAction("BatchRunAction", "Run multiple actions", {
-      actions: z.string().describe("Comma-separated action names"),
-    }, (p) => ({ actions: (p.actions as string).split(",").map(s => s.trim()) })),
-    batch_run_procedure: executeAction("BatchRunProcedure", "Run multiple procedures", {
-      procedures: z.string().describe("Comma-separated procedure names"),
-    }, (p) => ({ procedures: (p.procedures as string).split(",").map(s => s.trim()) })),
-    batch_destroy_deployment: executeAction("BatchDestroyDeployment", "Destroy multiple deployments (DESTRUCTIVE)", {
-      deployments: z.string().describe("Comma-separated deployment names"),
-    }, (p) => ({ deployments: (p.deployments as string).split(",").map(s => s.trim()) })),
-    batch_destroy_stack: executeAction("BatchDestroyStack", "Destroy multiple stacks (DESTRUCTIVE)", {
-      stacks: z.string().describe("Comma-separated stack names"),
-    }, (p) => ({ stacks: (p.stacks as string).split(",").map(s => s.trim()) })),
+    batch_deploy: executeAction("BatchDeploy", "Deploy all deployments matching pattern", {
+      pattern: batchPattern,
+    }, (p) => ({ pattern: p.pattern })),
+    batch_deploy_stack: executeAction("BatchDeployStack", "Deploy all stacks matching pattern", {
+      pattern: batchPattern,
+    }, (p) => ({ pattern: p.pattern })),
+    batch_run_build: executeAction("BatchRunBuild", "Run all builds matching pattern", {
+      pattern: batchPattern,
+    }, (p) => ({ pattern: p.pattern })),
+    batch_run_action: executeAction("BatchRunAction", "Run all actions matching pattern", {
+      pattern: batchPattern,
+    }, (p) => ({ pattern: p.pattern })),
+    batch_run_procedure: executeAction("BatchRunProcedure", "Run all procedures matching pattern", {
+      pattern: batchPattern,
+    }, (p) => ({ pattern: p.pattern })),
+    batch_destroy_deployment: executeAction("BatchDestroyDeployment", "Destroy all deployments matching pattern (DESTRUCTIVE)", {
+      pattern: batchPattern,
+    }, (p) => ({ pattern: p.pattern })),
+    batch_destroy_stack: executeAction("BatchDestroyStack", "Destroy all stacks matching pattern (DESTRUCTIVE)", {
+      pattern: batchPattern,
+    }, (p) => ({ pattern: p.pattern })),
   });
 
   // -- System Control --
