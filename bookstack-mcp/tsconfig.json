@@ -8,6 +8,7 @@
     "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "types": ["node"],
     "forceConsistentCasingInFileNames": true,
     "declaration": false,
     "sourceMap": false,

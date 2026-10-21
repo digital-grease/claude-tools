@@ -123,8 +123,8 @@ export function executeAction(
  * rendered compose (`deployed_config`, with secrets already interpolated), webhook
  * secrets and secret variables. None of that should land in a model's context.
  *
- * - `environment`: keep variable NAMES, drop values ("KEY=<redacted>"), so you can
- *   still see what is set.
+ * - `environment` (Komodo) and `Env` (Docker inspect `Config.Env` array): keep
+ *   variable NAMES, drop values ("KEY=<redacted>"), so you can still see what is set.
  * - `deployed_config`: replaced entirely (interpolated values are unrecognisable).
  * - secret-looking keys (password, secret, token, passkey, api key, private key, ...):
  *   value replaced.
@@ -148,18 +148,17 @@ export function redact(value: unknown, key = ""): unknown {
   }
   if (typeof value === "string" && value !== "") {
     if (key === "deployed_config") return REDACTED;
-    if (key === "environment") {
-      return value
-        .split("\n")
-        .map((line) => {
-          const m = line.match(/^(\s*(?:export\s+)?[A-Za-z_][A-Za-z0-9_]*)\s*=/);
-          return m ? `${m[1]}=<redacted>` : line;
-        })
-        .join("\n");
-    }
+    if (key === "environment") return value.split("\n").map(redactEnvLine).join("\n");
+    // Docker inspect (container/image): Config.Env is an array of "KEY=VALUE" strings
+    if (key === "Env") return redactEnvLine(value);
     if (SECRET_KEY.test(key)) return REDACTED;
   }
   return value;
+}
+
+function redactEnvLine(line: string): string {
+  const m = line.match(/^(\s*(?:export\s+)?[A-Za-z_][A-Za-z0-9_]*)\s*=/);
+  return m ? `${m[1]}=<redacted>` : line;
 }
 
 /** "a, b,c" -> ["a", "b", "c"]; missing or empty -> [] */
