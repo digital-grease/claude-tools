@@ -218,7 +218,7 @@ function registerTools(server: McpServer, client: BookStackClient, config: BookS
         offset: z.coerce.number().default(0),
         count: z.coerce.number().max(500).default(50),
         sort: z.string().optional(),
-        filter: z.record(z.any()).optional()
+        filter: z.record(z.string(), z.any()).optional()
       }
     },
     async (args) => {
@@ -260,7 +260,7 @@ function registerTools(server: McpServer, client: BookStackClient, config: BookS
         offset: z.coerce.number().default(0),
         count: z.coerce.number().max(500).default(50),
         sort: z.string().optional(),
-        filter: z.record(z.any()).optional()
+        filter: z.record(z.string(), z.any()).optional()
       }
     },
     async (args) => {
@@ -434,7 +434,7 @@ function registerTools(server: McpServer, client: BookStackClient, config: BookS
         offset: z.coerce.number().default(0),
         count: z.coerce.number().max(500).default(50),
         sort: z.string().optional(),
-        filter: z.record(z.any()).optional()
+        filter: z.record(z.string(), z.any()).optional()
       }
     },
     async (args) => {
@@ -474,7 +474,7 @@ function registerTools(server: McpServer, client: BookStackClient, config: BookS
         offset: z.coerce.number().default(0),
         count: z.coerce.number().max(500).default(50),
         sort: z.string().optional(),
-        filter: z.record(z.any()).optional()
+        filter: z.record(z.string(), z.any()).optional()
       }
     },
     async (args) => {
@@ -1128,16 +1128,17 @@ async function main() {
     baseUrl: getRequiredEnvVar('BOOKSTACK_BASE_URL'),
     tokenId: getRequiredEnvVar('BOOKSTACK_TOKEN_ID'),
     tokenSecret: getRequiredEnvVar('BOOKSTACK_TOKEN_SECRET'),
-    enableWrite: process.env.BOOKSTACK_ENABLE_WRITE?.toLowerCase() === 'true',
-    insecureSkipTlsVerify: process.env.BOOKSTACK_INSECURE_SKIP_TLS_VERIFY?.toLowerCase() === 'true'
+    enableWrite: process.env.BOOKSTACK_ENABLE_WRITE?.toLowerCase() === 'true'
   };
+
+  if (process.env.BOOKSTACK_INSECURE_SKIP_TLS_VERIFY?.toLowerCase() === 'true') {
+    console.error('BOOKSTACK_INSECURE_SKIP_TLS_VERIFY is no longer supported. To trust a self-signed or private CA certificate, set NODE_EXTRA_CA_CERTS to the path of its PEM file.');
+    process.exit(1);
+  }
 
   console.error('Initializing BookStack MCP Server...');
   console.error(`BookStack URL: ${config.baseUrl}`);
   console.error(`Write operations: ${config.enableWrite ? 'ENABLED' : 'DISABLED'}`);
-  if (config.insecureSkipTlsVerify) {
-    console.error('WARNING: TLS certificate verification is DISABLED (BOOKSTACK_INSECURE_SKIP_TLS_VERIFY=true). Connections to BookStack are vulnerable to MITM attacks. Use only with trusted self-signed certs on a trusted network.');
-  }
 
   const transportMode = (process.env.MCP_TRANSPORT ?? "stdio").toLowerCase();
   if (transportMode === "http" || transportMode === "sse") {
