@@ -50,6 +50,19 @@ check("plain variable value kept", vars[1].value === "visible");
 const nested = redact({ a: { b: [{ api_key: "fake-k", private_key: "fake-p", token: "fake-t", passkeys: ["fake-x"] }] } });
 check("nested secret keys replaced", !/fake-/.test(JSON.stringify(nested)));
 
+// Docker container inspect: Config.Env is an array of "KEY=VALUE" strings.
+const inspect = redact({
+  Name: "/demo",
+  Config: {
+    Env: ["NEXTCLOUD_ADMIN_PASSWORD=fake-env-1", "APP_KEY=base64:fake-env-2", "TZ=America/Chicago", "NOEQUALS"],
+    Image: "demo:1",
+  },
+}) as { Name: string; Config: { Env: string[]; Image: string } };
+check("inspect Env values dropped", !/fake-env|America/.test(JSON.stringify(inspect)));
+check("inspect Env keeps names", inspect.Config.Env[0] === "NEXTCLOUD_ADMIN_PASSWORD=<redacted>" && inspect.Config.Env[2] === "TZ=<redacted>");
+check("inspect Env non-assignment kept", inspect.Config.Env[3] === "NOEQUALS");
+check("inspect other fields untouched", inspect.Name === "/demo" && inspect.Config.Image === "demo:1");
+
 // Non-object results pass through.
 check("strings/numbers pass through", redact("ok") === "ok" && redact(3) === 3 && redact(null) === null);
 
