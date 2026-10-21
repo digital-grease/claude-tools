@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
-import https from 'https';
 
 const MAX_RETRIES_429 = 5;
 
@@ -33,7 +32,6 @@ export interface BookStackConfig {
   tokenId: string;
   tokenSecret: string;
   enableWrite?: boolean;
-  insecureSkipTlsVerify?: boolean;
 }
 
 export interface Book {
@@ -153,10 +151,7 @@ export class BookStackClient {
       headers: {
         'Authorization': `Token ${config.tokenId}:${config.tokenSecret}`,
         'Content-Type': 'application/json'
-      },
-      httpsAgent: config.insecureSkipTlsVerify
-        ? new https.Agent({ rejectUnauthorized: false })
-        : undefined
+      }
     });
 
     this.client.interceptors.response.use(undefined, async (error: AxiosError) => {

@@ -52,10 +52,9 @@ BOOKSTACK_BASE_URL=https://your-bookstack.com   # Required
 BOOKSTACK_TOKEN_ID=your-token-id                # Required
 BOOKSTACK_TOKEN_SECRET=your-token-secret        # Required
 BOOKSTACK_ENABLE_WRITE=false                    # Optional, default false
-BOOKSTACK_INSECURE_SKIP_TLS_VERIFY=false        # Optional, default false
 ```
 
-> **Security warning:** `BOOKSTACK_INSECURE_SKIP_TLS_VERIFY=true` disables TLS certificate verification for outgoing requests to BookStack. Use only for self-signed certs on a trusted LAN — connections become vulnerable to MITM attacks. The server logs a `WARNING` line at startup whenever this is enabled.
+> **Self-signed certificates:** TLS certificate verification is always on. If BookStack uses a self-signed or private CA certificate, set `NODE_EXTRA_CA_CERTS=/path/to/ca.pem` so Node trusts it. The old `BOOKSTACK_INSECURE_SKIP_TLS_VERIFY` option has been removed, and the server refuses to start if it is set to `true`.
 
 ## Client Configuration
 
